@@ -3,32 +3,30 @@ package accuweather;
 
 import io.restassured.http.Method;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import location.Location;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import weather.Weather;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class ForecastsDailyTest extends AccuweatherAbstractTest {
 
-        @Test
-        void testGetResponse1Day() {
-            Weather weather = given().queryParam("apikey", getApiKey()).pathParam("locationKey", 50)
-                    .when().get(getBaseUrl() + "/forecasts/v1/daily/1day/{locationKey}")
-                    .then().statusCode(200).time(lessThan(2000L))
-                    .extract().response().body().as(Weather.class);
-            Assertions.assertEquals(1, weather.getDailyForecasts().size());
-            System.out.println(weather);
-        }
+    @Test
+    void testGetResponse1Day() {
+        Weather weather = given().queryParam("apikey", getApiKey()).pathParam("locationKey", 50)
+                .when().get(getBaseUrl() + "/forecasts/v1/daily/1day/{locationKey}")
+                .then().statusCode(200).time(lessThan(2000L))
+                .extract().response().body().as(Weather.class);
+        Assertions.assertEquals(1, weather.getDailyForecasts().size());
+        System.out.println(weather);
+    }
 
 
     @Test
@@ -49,6 +47,7 @@ public class ForecastsDailyTest extends AccuweatherAbstractTest {
         Assertions.assertAll(() -> Assertions.assertEquals("Unauthorized", code),
                 () -> Assertions.assertEquals("Api Authorization failed", message));
     }
+
     @Test
     void testGetResponse15Days() {
 
@@ -74,7 +73,7 @@ public class ForecastsDailyTest extends AccuweatherAbstractTest {
     void testResponseDateAutocompleteSearch() {
         //вариант через assertThat() (но после первого бага проверка прекращается)
         given().queryParam("apikey", getApiKey()).queryParam("q", "Moscow")
-                .when().request(Method.GET,getBaseUrl() + "/locations/v1/cities/autocomplete")
+                .when().request(Method.GET, getBaseUrl() + "/locations/v1/cities/autocomplete")
                 .then().assertThat().statusCode(200).time(lessThan(2000L))
                 .statusLine("HTTP/1.1 200 OK")
                 .header("Content-Encoding", "gzip")
@@ -82,13 +81,14 @@ public class ForecastsDailyTest extends AccuweatherAbstractTest {
                 .body("[0].Key", equalTo("294021"));
         //вариант через assertAll() (выводит все баги)
         JsonPath response = given().queryParam("apikey", getApiKey()).queryParam("q", "Moscow")
-                .when().request(Method.GET,getBaseUrl() + "/locations/v1/cities/autocomplete")
+                .when().request(Method.GET, getBaseUrl() + "/locations/v1/cities/autocomplete")
                 .body().jsonPath();
         Assertions.assertAll(() -> Assertions.assertEquals("Moscow", response.get("[0].LocalizedName")),
                 () -> Assertions.assertEquals("294021", response.get("[0].Key")));
 
 
     }
+
     @Test
     void testGetLocations() {
         Map<String, String> mapQuery = new HashMap<>();
